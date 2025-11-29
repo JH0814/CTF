@@ -1,8 +1,8 @@
 # CTF
 ## CTF 풀이 시에 사용한 코드 및 Writeup 작성을 위한 repository입니다.
 
-# CTF
-Team : Fermion (2025/10 ~ )
+# CTF Team
+Fermion (2025/10 ~ )
 ## 2025
 #### 2025 HACKTHEON SEJONG Quals 56th
 #### UIUCTF 2025 151th
