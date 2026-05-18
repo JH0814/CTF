@@ -5,3 +5,4 @@
 #### DiceCTF 2026 Quals 46th
 #### TAMUctf 2026 193th
 #### UMassCTF 2026 122th
+#### TJCTF 2026 29th
