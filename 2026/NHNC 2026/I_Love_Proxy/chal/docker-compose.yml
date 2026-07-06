@@ -1,0 +1,46 @@
+services:
+  edge:
+    image: iloveproxy-edge:latest
+    build: ./proxy
+    environment:
+      HTTP_PORT: "8080"
+      UDP_PORT: "5555"
+    ports:
+      - "${PORT0}:8080"
+      - "${PORT0}:5555/udp"
+    restart: unless-stopped
+
+  courier:
+    image: iloveproxy-courier:latest
+    build: ./worker
+    environment:
+      FLAG: "${FLAG:-NHNC{TEST}}"
+      PORT: "7000"
+    volumes:
+      - /tmp/${ID:-i-love-proxy-local}/flag:/run/.proxy-seed:ro
+    expose: ["7000"]
+    restart: unless-stopped
+
+  vault:
+    image: busybox:1.36
+    command: ["sh", "-c", "mkdir -p /www && printf 'vault sealed: no material on this node\\n' > /www/index.html && httpd -f -p 80 -h /www"]
+    expose: ["80"]
+    restart: unless-stopped
+
+  ledger:
+    image: busybox:1.36
+    command: ["sh", "-c", "mkdir -p /www && printf 'ledger replay window closed\\n' > /www/index.html && httpd -f -p 80 -h /www"]
+    expose: ["80"]
+    restart: unless-stopped
+
+  render-cache:
+    image: busybox:1.36
+    command: ["sh", "-c", "mkdir -p /www && printf 'cache shard online, exports disabled\\n' > /www/index.html && httpd -f -p 80 -h /www"]
+    expose: ["80"]
+    restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${SUBNET0}
