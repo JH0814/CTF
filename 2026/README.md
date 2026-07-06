@@ -7,3 +7,4 @@
 #### UMassCTF 2026 122th
 #### TJCTF 2026 29th
 #### THEM?!CTF 2026 94th
+#### No Hack No CTF 2026 11th
