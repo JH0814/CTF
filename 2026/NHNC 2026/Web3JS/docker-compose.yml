@@ -1,0 +1,9 @@
+services:
+  web3js:
+    build: .
+    container_name: web3js_chal
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    # Keep default seccomp/cap profile but ensure setuid (/readflag) works:
+    # no-new-privileges must stay OFF, which is the Docker default.
