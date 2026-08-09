@@ -9,3 +9,4 @@
 #### THEM?!CTF 2026 94th
 #### No Hack No CTF 2026 11th
 #### VuwCTF 2026 21th
+#### KISIA CTF 2026 Quals 28th (team : 나는야임영웅)
