@@ -11,3 +11,4 @@
 #### VuwCTF 2026 21th
 #### KISIA CTF 2026 Quals 28th (team : 나는야임영웅)
 #### CCE 2026 Quals 49th
+#### HITCON 2026 5th (team : Korea Hacking Club Alliance)
