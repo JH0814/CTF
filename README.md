@@ -5,5 +5,7 @@
 Fermion (2025/10 ~ )
 
 SINE (2026/03 ~ )
+
+Korea Hacking Club Alliance (2026/10 ~ )
 ## 주력 분야
 pwnable, reversing
